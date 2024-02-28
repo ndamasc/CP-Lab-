@@ -40,6 +40,10 @@ def criar_nova_tabela():
     opcao1 = opcao1[colunas_selecionadas]
     opcao1.set_index(opcao1.columns[0], inplace=True)
     st.write(opcao1)
+    st.bar_chart(opcao1.set_index('tipo_produto'))
+
+
+ 
     
 
 def pagina_inicial():
