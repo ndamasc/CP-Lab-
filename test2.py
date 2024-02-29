@@ -2,6 +2,47 @@ import streamlit as st
 import pandas as pd
 import mysql.connector
 
+planta_ligada = False
+
+html_template1 = f'''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        .container {{
+            display: flex;
+            align-items: center;
+        }}
+        .bolinha {{
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: {'green' if planta_ligada else 'red'};
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Sombra */
+            border: 2px solid #ccc; /* Borda cinza */
+            margin-right: 10px;
+        }}
+        .comentario {{
+            font-size: 16px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="bolinha" class="bolinha"></div>
+        <div class="comentario" id="comentario">{'Planta ligada' if planta_ligada else 'Planta desligada'}</div>
+    </div>
+
+</body>
+</html>
+'''
+
+print(html_template1)
+
+
 
 def executar_consulta(sql):
     mydb = mysql.connector.connect(
@@ -32,13 +73,35 @@ def mostrar_mensagens():
     mp = executar_consulta(sql3)
     mp.set_index(mp.columns[0], inplace=True)
     st.write(mp)
+    
+
+
+#def mostra_tabela_io_opcua():
+#   
+#    sql4 = "SELECT * FROM io_opcua"
+#    mp2 = executar_consulta(sql4)
+#    def bolinha(status_item):
+#        cor = 'green' if status_item == 'Ativo' else 'red'
+#        return f'<div style="width: 20px; height: 20px; border-radius: 50%; background-color: {cor};"></div>'
+#    mp2['ON/OFF'] = mp2['status_item'].apply(bolinha)
+#    mp2.set_index(mp2.columns[0], inplace=True)
+#    
+#    st.write(mp2)    
 
 def mostra_tabela_io_opcua():
-   
     sql4 = "SELECT * FROM io_opcua"
     mp2 = executar_consulta(sql4)
-    mp2.set_index(mp2.columns[0], inplace=True)
-    st.write(mp2)    
+    def bolinha(status_item):
+        cor = 'green' if status_item == 'Ativo' else 'red'
+        return f'<div style="width: 20px; height: 20px; border-radius: 50%; background-color: {cor};"></div>'
+
+    # Adicionando uma coluna de bolinhas ao DataFrame
+    mp2['Bolinha'] = mp2['status_item'].apply(bolinha)
+
+    # Exibindo a tabela com as bolinhas usando st.write
+    st.write(mp2.to_html(escape=False), unsafe_allow_html=True)
+
+
 
 #def gera_grafico():
 #    sql = "SELECT id,  quantidade FROM produtos"
@@ -66,6 +129,7 @@ def mostra_planta():
 
 def pagina_inicial():
     st.title("Produção CP Lab")
+    st.write(html_template1, unsafe_allow_html=True)
     st.image("https://www.festo.com/media/pim/341/D15000100172341_1056x1024.jpg", caption="CP Lab 400",width=450)
     
     mostrar_tabela()
@@ -80,6 +144,7 @@ def segunda_pagina():
     
     
 def terceira_pagina():
+    
     st.title("Mensagens da produção")
     mostrar_mensagens()
     st.title("Planta")
