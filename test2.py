@@ -43,6 +43,38 @@ html_template1 = f'''
 print(html_template1)
 
 
+##### CRUD
+
+def inserir_dados_msg(msg, code_msg):
+    mydb2 = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="colares9187",
+        database="teste"
+    )
+    mycursor = mydb2.cursor()
+    sql3 = "INSERT INTO mensagem (msg, code_msg) VALUES (%s, %s)"
+    val1 = (msg, code_msg)
+    mycursor.execute(sql3, val1)
+    mydb2.commit()  # Você esqueceu de commitar a transação
+    mydb2.close()
+
+def inserir_dados_planta(Planta_id, plant_name,endpoint, io_opcua_id, plata_status ):
+    mydb3 = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="colares9187",
+        database="teste"
+    )
+    mycursor = mydb3.cursor()
+    sql4 = "INSERT INTO planta (Planta_id, plant_name,endpoint, io_opcua_id, plata_status) VALUES (%s, %s,%s, %s, %s)"
+    val2 = (Planta_id, plant_name,endpoint, io_opcua_id, plata_status)
+    mycursor.execute(sql4, val2)
+    mydb3.commit()  # Você esqueceu de commitar a transação
+    mydb3.close()
+
+
+
 
 def executar_consulta(sql):
     mydb = mysql.connector.connect(
@@ -125,15 +157,59 @@ def mostra_planta():
     mp3.set_index(mp3.columns[0], inplace=True)
     st.write(mp3)
 
-  
+ 
+def cadastrar_msg():
+    
+        st.title("Adicionar Dados de mensagem")
+
+        # Campos para inserir nome e idade
+        msg = st.text_input("Mensagem")
+        code_msg = st.number_input("Código da mensagem", min_value=0, max_value=150, step=1)
+
+        # Botão para inserir os dados
+        if st.button("Inserir Dados", key="inserir_msg"):
+            if msg and code_msg:
+                inserir_dados_msg(msg, code_msg)
+                st.success("Dados inseridos com sucesso!")
+            else:
+                st.error("Por favor, preencha todos os campos.")
+
+def cadastrar_planta():
+    
+        st.title("Adicionar Planta")
+
+        # Campos para inserir nome e idade
+        Planta_id = st.text_input("ID planta")
+        plant_name = st.text_input("Nome da planta")
+        endpoint = st.text_input("Endpoint")
+        io_opcua_id  = st.number_input("IO OPCUA ID", min_value=0, max_value=150, step=1)
+        plata_status = st.text_input("Status (Ativo/ Inativo)")
+
+        # Botão para inserir os dados
+        if st.button("Inserir Dados", key="inserir_planta"):
+            if Planta_id and plant_name and endpoint and io_opcua_id and plata_status:
+                inserir_dados_planta(Planta_id, plant_name,endpoint, io_opcua_id, plata_status)
+                st.success("Dados inseridos com sucesso!")
+            else:
+                st.error("Por favor, preencha todos os campos.")                  
 
 def pagina_inicial():
+
+    st.image('https://www.festo.com/media/fox/frontend/img/svg/logo_blue.svg', width=400, use_column_width=False)
+
+    #use_column_width=False
+    
     st.title("Produção CP Lab")
+    ##  para mais um topico separado na aba     st.sidebar.title('Cabeçalho Personalizado')
     st.write(html_template1, unsafe_allow_html=True)
     st.image("https://www.festo.com/media/pim/341/D15000100172341_1056x1024.jpg", caption="CP Lab 400",width=450)
     
     mostrar_tabela()
     #gera_grafico()
+    
+
+    
+    
 
 def segunda_pagina():
     st.write("Esta é a segunda página.")
@@ -143,12 +219,22 @@ def segunda_pagina():
     mostra_tabela_io_opcua()
     
     
+    
 def terceira_pagina():
     
     st.title("Mensagens da produção")
     mostrar_mensagens()
+    with st.expander("Cadastrar mensagem"):
+        #st.write("Aqui estão os detalhes adicionais que podem ser expandidos.")
+        cadastrar_msg()
+
     st.title("Planta")
     mostra_planta()
+    with st.expander("Cadastrar planta"):
+        #st.write("Aqui estão os detalhes adicionais que podem ser expandidos.")
+        cadastrar_planta()
+    
+    
     
 
 def main():
