@@ -43,7 +43,7 @@ html_template1 = f'''
 print(html_template1)
 
 
-##### CRUD
+####################### CRUD
 
 def inserir_dados_msg(msg, code_msg):
     mydb2 = mysql.connector.connect(
@@ -73,8 +73,35 @@ def inserir_dados_planta(Planta_id, plant_name,endpoint, io_opcua_id, plata_stat
     mydb3.commit()  # Você esqueceu de commitar a transação
     mydb3.close()
 
+def deletar_dados_msg(code_msg):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="colares9187",
+        database="teste"
+    )
+    mycursor = mydb.cursor()
+    sql = "DELETE FROM mensagem WHERE code_msg = %s"
+    val = (code_msg,)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    mydb.close() 
 
+def atualizar_dados_msg(code_msg, nova_msg):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="colares9187",
+        database="teste"
+    )
+    mycursor = mydb.cursor()
+    sql = "UPDATE mensagem SET msg = %s WHERE code_msg = %s"
+    val = (nova_msg, code_msg)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    mydb.close()
 
+########################### 
 
 def executar_consulta(sql):
     mydb = mysql.connector.connect(
@@ -106,8 +133,18 @@ def mostrar_mensagens():
     mp.set_index(mp.columns[0], inplace=True)
     st.write(mp)
     
-
-
+def atualiza_tabela():
+    
+    st.subheader("Atualizar Dados")
+    code_msg_update = st.text_input("Código da Mensagem para Atualizar:")
+    nova_msg = st.text_input("Nova Mensagem:")
+    if st.button("Atualizar"):
+        atualizar_dados_msg(code_msg_update, nova_msg)
+        st.success("Dados atualizados com sucesso!")
+        
+    
+    
+    
 #def mostra_tabela_io_opcua():
 #   
 #    sql4 = "SELECT * FROM io_opcua"
@@ -160,7 +197,7 @@ def mostra_planta():
  
 def cadastrar_msg():
     
-        st.title("Adicionar Dados de mensagem")
+        st.subheader("Adicionar Dados de mensagem")
 
         # Campos para inserir nome e idade
         msg = st.text_input("Mensagem")
@@ -173,6 +210,14 @@ def cadastrar_msg():
                 st.success("Dados inseridos com sucesso!")
             else:
                 st.error("Por favor, preencha todos os campos.")
+
+def deletar_dados():
+    st.subheader("Deletar Dados")
+    code_msg_delete = st.text_input("Código da Mensagem para Deletar:")
+    if st.button("Deletar"):
+        deletar_dados_msg(code_msg_delete)
+        st.success("Dados deletados com sucesso!")
+    
 
 def cadastrar_planta():
     
@@ -224,9 +269,13 @@ def terceira_pagina():
     
     st.title("Mensagens da produção")
     mostrar_mensagens()
-    with st.expander("Cadastrar mensagem"):
+    with st.expander("Adicionar dados"):
         #st.write("Aqui estão os detalhes adicionais que podem ser expandidos.")
         cadastrar_msg()
+    with st.expander("Deletar dados"):
+        deletar_dados()
+    with st.expander("Atualizar dados"):
+        atualiza_tabela()
 
     st.title("Planta")
     mostra_planta()
